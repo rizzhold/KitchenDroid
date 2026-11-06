@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kd_primary">#6200EE</color>
+    <color name="kd_primary_container">#EADDFF</color>
+    <color name="kd_secondary">#03DAC5</color>
+    <color name="kd_background">#F8F9FA</color>
+    <color name="kd_surface">#FFFFFF</color>
+    <color name="kd_on_primary">#FFFFFF</color>
+    <color name="kd_on_surface">#1C1C1E</color>
+    <color name="kd_on_surface_variant">#49454F</color>
+    <color name="kd_outline">#C4C4C4</color>
+    <color name="kd_error">#B3261E</color>
+</resources>

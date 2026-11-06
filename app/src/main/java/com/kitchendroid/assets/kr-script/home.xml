@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resource dir="file:///android_asset/samples" /> 
+<group>
+    <action auto-off="true">
+          <title>Select Project</title>
+          <set>echo $TSL > $TMPDIR/KitchenDroid.ini</set>
+          <summary sh="echo 'Current Project: /sdcard/KitchenDroid' ;cat $TMPDIR/KitchenDroid.ini"/>          
+          <param name="TSL" options-sh="samples/kd_project.sh CK" required="true"/>
+    </action>
+   
+    <action reload="true" auto-off="true">
+           <title>Delete Project</title>
+           <set>samples/kd_project.sh SC</set>
+           <param name="TSS"  multiple="true" options-sh="samples/kd_project.sh CK" required="true"/>
+    </action>
+    
+    <action reload="true" auto-off="true">
+           <title>New Project</title>
+           <set>samples/kd_project.sh XJ</set>
+           <param name="T" placeholder="Please enter the project name (non-Chinese):" required="true"/>
+    </action>
+    
+    <action reload="true" interruptible="false">
+           <title>Unzip ROM</title>
+           <set>kd_tool unzip --delete $silence $KD_DIR/$ZIP $KD_DIR</set>
+           <param name="silence" label="Delete source files" type="checkbox" />
+           <param name="ZIP" title="Please select the zip file:" options-sh="samples/findfile.sh zip1" desc="Put your files inside /sdcard/KitchenDroid project path" required="true"/>
+    </action>
+
+    <page title="Project Menu" config="file:///android_asset/kr-script/kitchendroid.xml">
+            <lock>
+                if [[ -f $TMPDIR/KitchenDroid.ini ]]; then
+                    echo 'unlocked'
+                else
+                    echo 'Create a project first'
+                fi
+            </lock>
+    </page>
+</group>
+
+<group>
+    <text>
+        <slices>
+            <slice size="18" color="#ffffffff">Statement</slice>
+            <slice break="true"></slice>
+            <slice size="10" color="#ffffffff">This app will not be responsible for any mishappening in system. The user will be responsible for all consequences caused by any operation.</slice>
+            <slice break="true"></slice>
+            <slice size="10" color="#ffffffff">Use it if you like and uninstall if you don’t</slice>
+            <slice break="true"></slice>
+            <slice size="10" color="#ffffffff">If you find any problem using it on your phone, please contact me to fix it.</slice>
+        </slices>
+    </text>
+</group>

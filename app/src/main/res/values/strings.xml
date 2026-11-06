@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KitchenDroid</string>
+    <string name="home_title">KitchenDroid</string>
+    <string name="subtitle_workspace">Internal workspace — no root required</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_workspace">Workspace</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home -->
+    <string name="card_project">Project</string>
+    <string name="btn_select_project">Select Project</string>
+    <string name="btn_new_project">New Project</string>
+    <string name="card_actions">Quick Actions</string>
+    <string name="btn_import_sdcard">Import from SDcard</string>
+    <string name="btn_open_workspace">Open Workspace</string>
+    <string name="card_info">Info</string>
+    <string name="info_workspace_path">Workspace path:</string>
+
+    <!-- Workspace -->
+    <string name="workspace_title">Workspace Files</string>
+    <string name="workspace_empty">No files yet</string>
+    <string name="btn_create_prop">Create .prop</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Delete</string>
+    <string name="dialog_delete_title">Delete file?</string>
+    <string name="dialog_delete_msg">This cannot be undone.</string>
+    <string name="dialog_delete_confirm">Delete</string>
+
+    <!-- Editor -->
+    <string name="edit_title">Edit: %1$s</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="pref_language">Language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_indonesian">Indonesian</string>
+    <string name="about_title">About</string>
+    <string name="about_text">KitchenDroid\nRebranded kitchen tool for Android.\nNo root required.\nWorkspace: internal app data.</string>
+
+    <!-- Messages -->
+    <string name="msg_imported">Imported: %1$s</string>
+    <string name="msg_import_failed">Import failed: %1$s</string>
+    <string name="msg_saved">Saved: %1$s</string>
+    <string name="msg_deleted">Deleted: %1$s</string>
+    <string name="msg_refreshed">Refreshed</string>
+    <string name="msg_symlink_warn">Workspace does not support symlink. Some unpacked files may be missing.</string>
+    <string name="msg_no_symlink_issue">Workspace supports symlink.</string>
+</resources>

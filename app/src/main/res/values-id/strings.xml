@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KitchenDroid</string>
+    <string name="home_title">KitchenDroid</string>
+    <string name="subtitle_workspace">Workspace internal — tanpa root</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Beranda</string>
+    <string name="nav_workspace">Workspace</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- Home -->
+    <string name="card_project">Project</string>
+    <string name="btn_select_project">Pilih Project</string>
+    <string name="btn_new_project">Project Baru</string>
+    <string name="card_actions">Aksi Cepat</string>
+    <string name="btn_import_sdcard">Impor dari SDcard</string>
+    <string name="btn_open_workspace">Buka Workspace</string>
+    <string name="card_info">Info</string>
+    <string name="info_workspace_path">Path workspace:</string>
+
+    <!-- Workspace -->
+    <string name="workspace_title">File Workspace</string>
+    <string name="workspace_empty">Belum ada file</string>
+    <string name="btn_create_prop">Buat .prop</string>
+    <string name="btn_edit">Edit</string>
+    <string name="btn_delete">Hapus</string>
+    <string name="dialog_delete_title">Hapus file?</string>
+    <string name="dialog_delete_msg">Tidak dapat dibatalkan.</string>
+    <string name="dialog_delete_confirm">Hapus</string>
+
+    <!-- Editor -->
+    <string name="edit_title">Edit: %1$s</string>
+    <string name="btn_save">Simpan</string>
+    <string name="btn_cancel">Batal</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="pref_language">Bahasa</string>
+    <string name="lang_english">Inggris</string>
+    <string name="lang_indonesian">Indonesia</string>
+    <string name="about_title">Tentang</string>
+    <string name="about_text">KitchenDroid\nRebranding alat kitchen untuk Android.\nTanpa root diperlukan.\nWorkspace: data internal aplikasi.</string>
+
+    <!-- Messages -->
+    <string name="msg_imported">Diimpor: %1$s</string>
+    <string name="msg_import_failed">Gagal impor: %1$s</string>
+    <string name="msg_saved">Tersimpan: %1$s</string>
+    <string name="msg_deleted">Dihapus: %1$s</string>
+    <string name="msg_refreshed">Dimerbarui</string>
+    <string name="msg_symlink_warn">Workspace tidak mendukung symlink. Beberapa file hasil unpack mungkin tidak muncul.</string>
+    <string name="msg_no_symlink_issue">Workspace mendukung symlink.</string>
+</resources>
