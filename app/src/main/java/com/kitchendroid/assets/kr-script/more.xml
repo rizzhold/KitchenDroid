@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<group>
+    <action>
+        <title>Script Executor</title>
+        <summary>Custom Commands</summary>
+        <set>samples/shell.sh</set>
+        <param name="TO" placeholder="Custom Commands" value-sh="cat $START_DIR/SHE.sh" requiret="true" />
+    </action>
+</group>
+
+<group title="About Tools">
+    <page title="Special thanks" config="file:///android_asset/kr-script/thank.xml" />
+</group>
