@@ -1,64 +1,86 @@
 package com.kitchendroid.app
 
-import android.app.Activity
-import android.content.Intent
+import android.provider.OpenableColumns
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import java.io.File
 
 enum class Screen { Home, Workspace, Settings, Edit }
 
 class MainActivity : ComponentActivity() {
 
+    private val ws by lazy { WorkspaceManager(this) }
+    private val kt by lazy { KitchenTool(this, ws) }
+
+    private var currentScreen by mutableStateOf(Screen.Home)
+    private var files by mutableStateOf<List<String>>(emptyList())
+    private var message by mutableStateOf("")
+    private var newFileName by mutableStateOf("")
+    private var editingFile by mutableStateOf<String?>(null)
+    private var propText by mutableStateOf("")
+    private var lang by mutableStateOf("en")
+
     private val openFile = registerForActivityResult(OpenDocument()) { uri: Uri? ->
-        uri?.let {
-            try {
-                val input = contentResolver.openInputStream(it) ?: return@let
-                val displayName = it.lastPathSegment?.let { it.substringAfterLast('/') } ?: "imported_file"
-                val dest = File(ws.workspacePath(), displayName)
-                dest.outputStream().use { output ->
-                    input.use { it.copyTo(output) }
+        if (uri != null) importUri(uri)
+    }
+
+    private fun queryDisplayName(uri: Uri): String {
+        try {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+                if (c.moveToFirst()) {
+                    val n = c.getString(0)
+                    if (!n.isNullOrBlank()) return n
                 }
-                message = getString(R.string.msg_imported, displayName)
-                refresh()
-                currentScreen = Screen.Workspace
-            } catch (e: Exception) {
-                message = getString(R.string.msg_import_failed, e.message ?: "unknown")
             }
+        } catch (e: Exception) {
+        }
+        return uri.lastPathSegment?.substringAfterLast('/') ?: "imported_file"
+    }
+
+    private fun importUri(uri: Uri) {
+        try {
+            val input = contentResolver.openInputStream(uri) ?: return
+            val displayName = queryDisplayName(uri)
+            val dest = File(ws.workspacePath(), displayName)
+            input.use { src ->
+                dest.outputStream().use { out -> src.copyTo(out) }
+            }
+            message = getString(R.string.msg_imported, displayName)
+            refresh()
+            currentScreen = Screen.Workspace
+        } catch (e: Exception) {
+            message = getString(R.string.msg_import_failed, e.message ?: "unknown")
         }
     }
 
-    private val ws = WorkspaceManager(this)
-    private val kt = KitchenTool(this, ws)
-
-    private var currentScreen by remember { mutableStateOf<Screen>(Screen.Home) }
-    private var items by remember { mutableStateOf<List<String>>(emptyList()) }
-    private var message by remember { mutableStateOf("") }
-    private var newFileName by remember { mutableStateOf("") }
-    private var editingFile: String? by remember { mutableStateOf(null) }
-    private var propText by remember { mutableStateOf("") }
-    private var lang by remember { mutableStateOf(LocaleManager.getLanguage(this)) }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lang = LocaleManager.getLanguage(this)
         LocaleManager.applyLocale(this, lang)
-        ws.copyToolsFromAssets()
+        // copy tools di background supaya UI tidak macet
+        Thread { try { ws.copyToolsFromAssets() } catch (e: Exception) { } }.start()
         refresh()
 
         setContent {
@@ -76,7 +98,10 @@ class MainActivity : ComponentActivity() {
                             Screen.Home -> HomeScreen()
                             Screen.Workspace -> WorkspaceScreen()
                             Screen.Settings -> SettingsScreen()
-                            Screen.Edit -> editingFile?.let { EditPropScreen(it) } ?: HomeScreen()
+                            Screen.Edit -> {
+                                val f = editingFile
+                                if (f != null) EditPropScreen(f) else HomeScreen()
+                            }
                         }
                     }
                 }
@@ -85,7 +110,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun refresh() {
-        items = kt.listWorkspace()
+        files = kt.listWorkspace()
     }
 
     // ==================== HOME ====================
@@ -113,7 +138,7 @@ class MainActivity : ComponentActivity() {
             // Project card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedShape(20.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -123,10 +148,10 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Button(onClick = { /* select project */ }, shape = RoundedShape(12.dp)) {
+                        Button(onClick = { /* select project */ }, shape = RoundedCornerShape(12.dp)) {
                             Text(getString(R.string.btn_select_project))
                         }
-                        Button(onClick = { /* new project */ }, shape = RoundedShape(12.dp)) {
+                        Button(onClick = { /* new project */ }, shape = RoundedCornerShape(12.dp)) {
                             Text(getString(R.string.btn_new_project))
                         }
                     }
@@ -138,7 +163,7 @@ class MainActivity : ComponentActivity() {
             // Actions card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedShape(20.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -146,7 +171,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
                         onClick = { openFile.launch(arrayOf("*/*")) },
-                        shape = RoundedShape(12.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text(getString(R.string.btn_import_sdcard))
@@ -154,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = { currentScreen = Screen.Workspace },
-                        shape = RoundedShape(12.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
                         Text(getString(R.string.btn_open_workspace))
@@ -167,7 +192,7 @@ class MainActivity : ComponentActivity() {
             // Info card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedShape(20.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -217,14 +242,14 @@ class MainActivity : ComponentActivity() {
                             refresh()
                         }
                     },
-                    shape = RoundedShape(12.dp),
+                    shape = RoundedCornerShape(12.dp),
                     enabled = newFileName.isNotBlank()
                 ) {
                     Text(getString(R.string.btn_create_prop))
                 }
                 OutlinedButton(
                     onClick = { refresh() },
-                    shape = RoundedShape(12.dp)
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(getString(R.string.msg_refreshed))
                 }
@@ -241,21 +266,21 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (items.isEmpty()) {
+            if (files.isEmpty()) {
                 Text(text = getString(R.string.workspace_empty), style = MaterialTheme.typography.bodyMedium)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    items(items, key = { it }) { name ->
+                    items(files, key = { it }) { name ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 6.dp)
                                 .background(
                                     MaterialTheme.colorScheme.surface,
-                                    shape = RoundedShape(12.dp)
+                                    shape = RoundedCornerShape(12.dp)
                                 )
                                 .clickable { /* pilih file */ },
                             verticalAlignment = Alignment.CenterVertically
@@ -273,7 +298,7 @@ class MainActivity : ComponentActivity() {
                                             propText = kt.readProp(name)
                                             currentScreen = Screen.Edit
                                         },
-                                        shape = RoundedShape(8.dp),
+                                        shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
                                     ) {
                                         Text(getString(R.string.btn_edit))
@@ -286,7 +311,7 @@ class MainActivity : ComponentActivity() {
                                         refresh()
                                         message = getString(R.string.msg_deleted, name)
                                     },
-                                    shape = RoundedShape(8.dp),
+                                    shape = RoundedCornerShape(8.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                                 ) {
                                     Text(getString(R.string.btn_delete))
@@ -333,7 +358,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                Button(onClick = { currentScreen = Screen.Workspace }, shape = RoundedShape(12.dp)) {
+                Button(onClick = { currentScreen = Screen.Workspace }, shape = RoundedCornerShape(12.dp)) {
                     Text(getString(R.string.btn_cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
@@ -343,7 +368,7 @@ class MainActivity : ComponentActivity() {
                         refresh()
                         currentScreen = Screen.Workspace
                     },
-                    shape = RoundedShape(12.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(getString(R.string.btn_save))
@@ -424,7 +449,7 @@ class MainActivity : ComponentActivity() {
                 onClick = { onClick(Screen.Home) }
             )
             NavigationBarItem(
-                icon = { Icon(Icons.Default.Folder, contentDescription = null) },
+                icon = { Icon(Icons.Default.List, contentDescription = null) },
                 label = { Text(getString(R.string.nav_workspace)) },
                 selected = selected == Screen.Workspace,
                 onClick = { onClick(Screen.Workspace) }

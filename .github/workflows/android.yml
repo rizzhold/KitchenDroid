@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,17 +19,26 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build Debug APK
+      # Android SDK sudah ada di runner (ANDROID_HOME). Cukup pastikan lisensi
+      # & paket yang dibutuhkan ada. TIDAK pakai android-actions/setup-android
+      # (itu yang bikin error "Failed to find package 'tools'").
+      - name: Prepare Android SDK
         run: |
-          cd app
-          ../gradlew assembleDebug
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+
+      # Tidak ada gradlew di repo, jadi Gradle dipasang oleh action ini.
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
+
+      - name: Build debug APK
+        run: gradle assembleDebug --stacktrace
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-          
+          if-no-files-found: error

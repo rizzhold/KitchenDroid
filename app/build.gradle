@@ -10,7 +10,9 @@ android {
     defaultConfig {
         applicationId 'com.kitchendroid.app'
         minSdk 24
-        targetSdk 34
+        // targetSdk 28: Android 10+ (targetSdk 29+) melarang eksekusi binary dari
+        // filesDir (W^X). Aplikasi ini menjalankan tools (busybox, dll) dari sana.
+        targetSdk 28
         versionCode 1
         versionName '1.0'
     }
@@ -28,11 +30,12 @@ android {
     kotlinOptions { jvmTarget = '1.8' }
 
     buildFeatures { compose true }
+    // Compose compiler 1.5.8 <-> Kotlin 1.9.22
     composeOptions { kotlinCompilerExtensionVersion = '1.5.8' }
 
     packaging {
         resources {
-            excludes += ['META-INF/*']
+            excludes += ['/META-INF/{AL2.0,LGPL2.1}']
         }
     }
 }
@@ -45,5 +48,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
     implementation 'androidx.activity:activity-compose:1.8.2'
     implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.foundation:foundation'
     implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.compose.material:material-icons-core'
 }

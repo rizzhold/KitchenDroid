@@ -14,7 +14,7 @@ class KitchenTool(private val ctx: android.content.Context, private val ws: Work
 
     fun unpackZip(zipName: String): String {
         ws.copyToolsFromAssets()
-        val kitchenBin = ws.toolPath("kd_tool")
+        val kitchenBin = ws.toolPath("kitchendroid")
         val zipFile = File(ws.workspacePath(), zipName)
         val dest = File(ws.workspacePath(), "module")
         dest.mkdirs()
@@ -23,7 +23,7 @@ class KitchenTool(private val ctx: android.content.Context, private val ws: Work
 
     fun extractImg(imgName: String): String {
         ws.copyToolsFromAssets()
-        val kitchenBin = ws.toolPath("kd_tool")
+        val kitchenBin = ws.toolPath("kitchendroid")
         val imgFile = File(ws.workspacePath(), imgName)
         return run(listOf(kitchenBin, "extract", imgFile.absolutePath), File(ws.workspacePath()))
     }

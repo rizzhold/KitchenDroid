@@ -16,7 +16,7 @@ object LocaleManager {
     /** "en" or "id" */
     fun getLanguage(context: Context): String {
         val prefs: SharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_LANG, "en")
+        return prefs.getString(KEY_LANG, "en") ?: "en"
     }
 
     fun saveLanguage(context: Context, languageCode: String) {
